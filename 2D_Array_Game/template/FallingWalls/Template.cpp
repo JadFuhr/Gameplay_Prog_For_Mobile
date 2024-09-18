@@ -17,11 +17,11 @@
 /// load and setup thne image
 /// </summary>
 Game::Game() :
-	m_window{ sf::VideoMode{ 800U, 600U, 32U }, "SFML Game" },
+	m_window{ sf::VideoMode{ 1000U, 1200U, 32U }, "SFML Game" },
 	m_exitGame{false} //when true game will exit
 {
 	setupFontAndText(); // load font 
-	setupSprite(); // load texture
+	setupCursor();
 }
 
 /// <summary>
@@ -103,6 +103,9 @@ void Game::update(sf::Time t_deltaTime)
 	{
 		m_window.close();
 	}
+
+	updateCursor(m_cursor,m_window);
+
 }
 
 /// <summary>
@@ -110,9 +113,10 @@ void Game::update(sf::Time t_deltaTime)
 /// </summary>
 void Game::render()
 {
-	m_window.clear(sf::Color::White);
-	m_window.draw(m_welcomeMessage);
-	m_window.draw(m_logoSprite);
+	m_window.clear(sf::Color::Black);
+
+	m_window.draw(m_cursor);
+
 	m_window.display();
 }
 
@@ -139,13 +143,20 @@ void Game::setupFontAndText()
 /// <summary>
 /// load the texture and setup the sprite for the logo
 /// </summary>
-void Game::setupSprite()
+
+void Game::setupCursor()		//set up the cursor circle that follows the mouse 
 {
-	if (!m_logoTexture.loadFromFile("ASSETS\\IMAGES\\SFML-LOGO.png"))
-	{
-		// simple error message if previous call fails
-		std::cout << "problem loading logo" << std::endl;
-	}
-	m_logoSprite.setTexture(m_logoTexture);
-	m_logoSprite.setPosition(300.0f, 180.0f);
+
+	m_cursor.setFillColor(sf::Color::White);
+	m_cursor.setRadius(5);
+	m_cursor.setOrigin(2.5, 2.5);
+
+}
+
+void Game::updateCursor(sf::CircleShape& t_cursor, sf::RenderWindow& t_window)		// update the cursor circles position every frame 
+{
+	sf::Vector2i mousePosition = sf::Mouse::getPosition(t_window);
+
+	t_cursor.setPosition(static_cast<sf::Vector2f>(mousePosition));
+
 }
