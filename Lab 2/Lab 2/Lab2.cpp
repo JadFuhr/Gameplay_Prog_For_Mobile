@@ -10,6 +10,7 @@ int main()
 					   {0,0,1,1,1,1} };
 	PrintArray(array);
 	int score = ReplaceWithMinusOne(array);
+	PrintArray(array);
 
 	FallDownAndReplace(array);
 }
