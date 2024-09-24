@@ -1,6 +1,6 @@
 #include "functions.h"
 #include <iostream>
-
+#include <cmath>
 
 // Test for Questions 1 to 8
 int main()
@@ -117,5 +117,6 @@ int main()
 	std::cout << "Triangles" << std::endl;
 	drawRightAngledTriangle();
 	drawIsocelesTriangle();
+	drawIsocelesTriangle2();
 
 }
