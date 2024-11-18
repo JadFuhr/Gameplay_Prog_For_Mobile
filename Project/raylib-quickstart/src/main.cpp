@@ -3,6 +3,7 @@
 #include "raygui.h"
 
 #define MAX_RECTS 1000
+#define GRID_SIZE 10
 
 typedef struct Rect {
     Vector2 position;
@@ -15,6 +16,7 @@ int main() {
     // Initialization
     const int screenWidth = 800;
     const int screenHeight = 600;
+
     InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Rectangle Mode");
 
     // Variables
@@ -59,9 +61,20 @@ int main() {
             }
         }
 
+
         // Draw
         BeginDrawing();
         ClearBackground(RAYWHITE);
+
+        // draw grid
+
+        for (int x = 0; x < screenWidth; x += GRID_SIZE)
+        {
+            for (int y = 0; y < screenHeight; y += GRID_SIZE)
+            {
+                DrawRectangleLines(x, y, GRID_SIZE, GRID_SIZE, LIGHTGRAY);
+            }
+        }
 
         // Draw the palette buttons
         for (int i = 0; i < paletteSize; i++) {
