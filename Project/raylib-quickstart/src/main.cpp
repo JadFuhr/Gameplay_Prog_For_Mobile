@@ -8,7 +8,7 @@ typedef struct Rect {
     Vector2 position;
     float width;
     float height;
-    Color color;
+    Color colour;
 } Rect;
 
 int main() {
@@ -44,7 +44,7 @@ int main() {
                 rectangles[rectCount].position.y = rectStart.y;
                 rectangles[rectCount].width = 10;
                 rectangles[rectCount].height = 10;
-                rectangles[rectCount].color = currentColor;
+                rectangles[rectCount].colour = currentColor;
                 rectCount++;
             }
         }
@@ -74,7 +74,7 @@ int main() {
 
         // Draw all stored rectangles
         for (int i = 0; i < rectCount; i++) {
-            DrawRectangleRec({ rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height }, rectangles[i].color);
+            DrawRectangleRec({ rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height }, rectangles[i].colour);
         }
 
         // Draw the current rectangle if drawing
