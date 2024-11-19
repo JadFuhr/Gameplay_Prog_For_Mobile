@@ -46,7 +46,8 @@ int main() {
                 // Eraser logic: Find and "erase" (set color to RAYWHITE)
                 for (int i = 0; i < rectCount; i++) {
                     if (rectangles[i].position.x == snappedX && rectangles[i].position.y == snappedY) {
-                        rectangles[i].colour = RAYWHITE;
+                        //rectangles[i].colour = RAYWHITE;
+                        rectCount--;
                         break;
                     }
                 }
