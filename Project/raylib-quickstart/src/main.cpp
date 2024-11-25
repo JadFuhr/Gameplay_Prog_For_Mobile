@@ -1,6 +1,7 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "main.h"
 
 #define MAX_RECTS 1000
 #define GRID_SIZE 10
@@ -11,6 +12,8 @@ typedef struct Rect {
     float height;
     Color colour;
 } Rect;
+
+
 
 int main()
 {
@@ -104,6 +107,9 @@ int main()
             }
         }
 
+
+
+
         // Handle drag-and-drop rectangle creation
 
         if (rectToolActive && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -148,23 +154,7 @@ int main()
 
         Rectangle rectToolButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 1), 60, 30 };
 
-        // Handle eraser button press
-
-        if (GuiButton(eraserButton, "Eraser"))
-        {
-            eraserActive = true;
-            rectToolActive = false;
-            selectedColor = -1; // Deselect color
-        }
-
-        // Handle rectangle tool button press
-
-        if (GuiButton(rectToolButton, "Rectangle"))
-        {
-            rectToolActive = true;
-            eraserActive = false;
-            selectedColor = -1; // Deselect color
-        }
+        Rectangle resetGridButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 2),60,30 };
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -210,17 +200,32 @@ int main()
             }
         }
 
+        // eraser button
+
         if (GuiButton(eraserButton, "Eraser"))
         {
             eraserActive = true;
             rectToolActive = false;
             selectedColor = -1;
         }
+
+        // rectangle button
+
         if (GuiButton(rectToolButton, "Rectangle"))
         {
             rectToolActive = true;
             eraserActive = false;
             selectedColor = -1;
+        }
+
+        // reset grid button
+
+        if (GuiButton(resetGridButton, "Reset"))
+        {
+            for (int i = 0; i < MAX_RECTS; i++)
+            {
+                rectangles[i].colour = BLANK;
+            }
         }
 
         if (eraserActive)       // highlight eraser tool
