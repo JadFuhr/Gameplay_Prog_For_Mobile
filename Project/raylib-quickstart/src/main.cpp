@@ -7,166 +7,148 @@
 
 typedef struct Rect {
     Vector2 position;
-
     float width;
-
     float height;
-
     Color colour;
-
 } Rect;
 
 int main()
 {
-
-    // Initialization
-
     const int screenWidth = 800;
-
     const int screenHeight = 600;
-
     const int paletteWidth = 100;
 
-    InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Rectangle Mode with Eraser");
+    InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Drag & Drop Rectangle");
 
-    // Variables
     Rect rectangles[MAX_RECTS];
-
     int rectCount = 0;
-
-    Color currentColor = BLACK;  // Default color for drawing rectangles
-
-    bool eraserActive = false;  // Eraser tool toggle
-
-    // Define a simple color palette
+    Color currentColor = BLACK;
+    bool eraserActive = false;
+    bool rectToolActive = false;
 
     Color palette[] = { BLACK, RED, GREEN, BLUE, YELLOW, ORANGE, PURPLE, MAROON };
-
     int paletteSize = sizeof(palette) / sizeof(palette[0]);
-
     int selectedColor = 0;
 
-
-    int blockSize = 1;  // Default block size
+    bool isDragging = false;
+    Vector2 dragStart = { 0, 0 };
+    Vector2 dragEnd = { 0, 0 };
 
     SetTargetFPS(60);
 
-    // Main game loop
-
     while (!WindowShouldClose())
     {
-        // Update
-
         Vector2 mousePosition = GetMousePosition();
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        // Handle mouse input for 1x1 squares
+        if (!rectToolActive && !eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
-            // Snap mouse position to the grid
-
             float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;
             float snappedY = (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE;
 
-
             if (mousePosition.x < screenWidth - paletteWidth)
             {
-                if (eraserActive)
+                bool exists = false;
+                for (int i = 0; i < rectCount; i++)
                 {
-                    for (int i = 0; i < rectCount; i++)
+                    if (rectangles[i].position.x == snappedX && rectangles[i].position.y == snappedY)
                     {
-                        //initializes rect with the position (x, y) and size of the rectangle stored at index i
-
-                        Rectangle rect = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
-
-                        if (CheckCollisionPointRec(mousePosition, rect))
-                        {
-                            // Shift remaining rectangles down to fill the gap
-
-                            for (int j = i; j < rectCount - 1; j++)
-                            {
-                                rectangles[j] = rectangles[j + 1];
-                            }
-                            rectCount--;  // Reduce the rectangle count
-
-                            break;  // Exit the loop after erasing
-                        }
+                        rectangles[i].colour = currentColor;
+                        exists = true;
+                        break;
                     }
                 }
-                else
+                if (!exists && rectCount < MAX_RECTS)
                 {
-                    // Drawing logic: Add a new rectangle
-                    bool exists = false;
-                    for (int i = 0; i < rectCount; i++)
-                    {
-                        if (rectangles[i].position.x == snappedX && rectangles[i].position.y == snappedY)
-                        {
-                            rectangles[i].colour = currentColor;  // Update color if it exists
-                            exists = true;
-                            break;
-                        }
-                    }
-                    if (!exists && rectCount < MAX_RECTS)
-                    {
-                        rectangles[rectCount].position.x = snappedX;
-                        rectangles[rectCount].position.y = snappedY;
-                        rectangles[rectCount].width = GRID_SIZE * blockSize;
-                        rectangles[rectCount].height = GRID_SIZE * blockSize;
-                        rectangles[rectCount].colour = currentColor;
-                        rectCount++;
-                    }
+                    rectangles[rectCount].position.x = snappedX;
+                    rectangles[rectCount].position.y = snappedY;
+                    rectangles[rectCount].width = GRID_SIZE;
+                    rectangles[rectCount].height = GRID_SIZE;
+                    rectangles[rectCount].colour = currentColor;
+                    rectCount++;
                 }
             }
         }
 
-        // Handle palette and eraser selection
+        // Handle drag-and-drop rectangle creation
+        if (rectToolActive && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (mousePosition.x < screenWidth - paletteWidth)
+            {
+                isDragging = true;
+                dragStart = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };
+            }
+        }
+
+        if (rectToolActive && IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && isDragging)
+        {
+            dragEnd = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };
+
+            float rectWidth = fabsf(dragEnd.x - dragStart.x);
+            float rectHeight = fabsf(dragEnd.y - dragStart.y);
+
+            if (rectCount < MAX_RECTS)
+            {
+                rectangles[rectCount].position.x = fminf(dragStart.x, dragEnd.x);
+                rectangles[rectCount].position.y = fminf(dragStart.y, dragEnd.y);
+                rectangles[rectCount].width = rectWidth;
+                rectangles[rectCount].height = rectHeight;
+                rectangles[rectCount].colour = currentColor;
+                rectCount++;
+            }
+
+            isDragging = false;
+        }
+
+        if (isDragging)
+        {
+            dragEnd = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };
+        }
+
+        // Palette and tool selection
 
         for (int i = 0; i < paletteSize; i++)
         {
-            // Position buttons vertically in the color palette area
             Rectangle colorButton = { screenWidth - paletteWidth + 10, 10 + 40 * i, 30, 30 };
-
-            // Draw the button for each color
-            if (GuiButton(colorButton, "")) // Detect interaction
+            if (GuiButton(colorButton, ""))
             {
                 currentColor = palette[i];
                 selectedColor = i;
-                eraserActive = false;  // Deactivate eraser when a color is selected
+                eraserActive = false;
+                rectToolActive = false;
             }
-
-            // Highlight the selected color
-            if (i == selectedColor && !eraserActive)
+            if (i == selectedColor && !eraserActive && !rectToolActive)
             {
-                DrawRectangleLinesEx(colorButton, 2, BLACK);  // Draw black border for the selected color
+                DrawRectangleLinesEx(colorButton, 2, BLACK);
             }
         }
 
-        // Eraser button
         Rectangle eraserButton = { screenWidth - paletteWidth + 10, 10 + 40 * paletteSize, 60, 30 };
-
-        // Detect eraser button interaction
-
         if (GuiButton(eraserButton, "Eraser"))
         {
-            eraserActive = true; // Activate the eraser
-            selectedColor = -1;  // Deselect any color
+            eraserActive = true;
+            rectToolActive = false;
+            selectedColor = -1;
         }
-
-        // Draw the eraser button
-        DrawRectangleRec(eraserButton, LIGHTGRAY);
-
-        DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
-
-        // Highlight the eraser button if active
-
         if (eraserActive)
         {
-            DrawRectangleLinesEx(eraserButton, 2, RED);  // Draw a red border to indicate it's active
+            DrawRectangleLinesEx(eraserButton, 2, RED);
         }
 
-        // Draw
+        Rectangle rectToolButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 1), 60, 30 };
+        if (GuiButton(rectToolButton, "Rectangle"))
+        {
+            rectToolActive = true;
+            eraserActive = false;
+            selectedColor = -1;
+        }
+        if (rectToolActive)
+        {
+            DrawRectangleLinesEx(rectToolButton, 2, GREEN);
+        }
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
-
-        // Draw the grid
 
         for (int x = 0; x < screenWidth - paletteWidth; x += GRID_SIZE)
         {
@@ -176,49 +158,40 @@ int main()
             }
         }
 
-        // Draw the color palette area on the right
-
         DrawRectangle(screenWidth - paletteWidth, 0, paletteWidth, screenHeight, LIGHTGRAY);
 
-        // Draw color buttons
-
-        for (int i = 0; i < paletteSize; i++) 
+        for (int i = 0; i < paletteSize; i++)
         {
             Rectangle colorButton = { screenWidth - paletteWidth + 10, 10 + 40 * i, 30, 30 };
-
             DrawRectangleRec(colorButton, palette[i]);
-
-            if (i == selectedColor && !eraserActive) 
+            if (i == selectedColor && !eraserActive && !rectToolActive)
             {
-                DrawRectangleLinesEx(colorButton, 2, BLACK); // Highlight selected color
+                DrawRectangleLinesEx(colorButton, 2, BLACK);
             }
         }
 
-        // Draw the eraser button
-
         DrawRectangleRec(eraserButton, LIGHTGRAY);
-
         DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
 
-        if (eraserActive)
-        {
-            DrawRectangleLinesEx(eraserButton, 2, BLACK); // Highlight the eraser button when active
-        }
-
-
-
-        // Draw all stored rectangles
+        DrawRectangleRec(rectToolButton, LIGHTGRAY);
+        DrawText("Rectangle", rectToolButton.x + 5, rectToolButton.y + 5, 15, BLACK);
 
         for (int i = 0; i < rectCount; i++)
         {
-            DrawRectangleRec({ rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height }, rectangles[i].colour);
+            Rectangle rect = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
+            DrawRectangleRec(rect, rectangles[i].colour);
+        }
+
+        if (isDragging)
+        {
+            float previewWidth = fabsf(dragEnd.x - dragStart.x);
+            float previewHeight = fabsf(dragEnd.y - dragStart.y);
+            DrawRectangleLines(fminf(dragStart.x, dragEnd.x), fminf(dragStart.y, dragEnd.y), previewWidth, previewHeight, currentColor);
         }
 
         EndDrawing();
     }
 
-    // De-Initialization
     CloseWindow();
-
     return 0;
 }
