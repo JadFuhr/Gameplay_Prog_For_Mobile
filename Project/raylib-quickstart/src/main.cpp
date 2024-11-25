@@ -46,11 +46,6 @@ int main()
 
     int selectedColor = 0;
 
-    // Block size button positions
-
-    Rectangle blockSize1x1Button = { 0 };
-
-    Rectangle blockSize2x2Button = { 0 };
 
     int blockSize = 1;  // Default block size
 
@@ -71,19 +66,6 @@ int main()
             float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;
             float snappedY = (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE;
 
-            // Block size toggle buttons
-
-            blockSize1x1Button = { screenWidth - paletteWidth + 10, screenHeight - 80, paletteWidth - 20, 30 };
-            blockSize2x2Button = { screenWidth - paletteWidth + 10, screenHeight - 40, paletteWidth - 20, 30 };
-
-            if (GuiButton(blockSize1x1Button, "1x1"))
-            {
-                blockSize = 1; // Set block size to 1x1
-            }
-            if (GuiButton(blockSize2x2Button, "2x2"))
-            {
-                blockSize = 2; // Set block size to 2x2
-            }
 
             if (mousePosition.x < screenWidth - paletteWidth)
             {
@@ -161,15 +143,23 @@ int main()
         Rectangle eraserButton = { screenWidth - paletteWidth + 10, 10 + 40 * paletteSize, 60, 30 };
 
         // Detect eraser button interaction
+
         if (GuiButton(eraserButton, "Eraser"))
         {
-            eraserActive = true;
+            eraserActive = true; // Activate the eraser
+            selectedColor = -1;  // Deselect any color
         }
 
+        // Draw the eraser button
+        DrawRectangleRec(eraserButton, LIGHTGRAY);
+
+        DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
+
         // Highlight the eraser button if active
+
         if (eraserActive)
         {
-            DrawRectangleLinesEx(eraserButton, 2, RED);
+            DrawRectangleLinesEx(eraserButton, 2, RED);  // Draw a red border to indicate it's active
         }
 
         // Draw
@@ -186,65 +176,34 @@ int main()
             }
         }
 
-        // Draw block size toggle buttons
-
-        DrawRectangleRec(blockSize1x1Button, LIGHTGRAY);
-
-        DrawText("1x1", blockSize1x1Button.x + 5, blockSize1x1Button.y + 5, 15, BLACK);
-
-        DrawRectangleRec(blockSize2x2Button, LIGHTGRAY);
-
-        DrawText("2x2", blockSize2x2Button.x + 5, blockSize2x2Button.y + 5, 15, BLACK);
-
-        // Draw block size toggle buttons
-
-        DrawRectangleRec(blockSize1x1Button, LIGHTGRAY);
-
-        DrawText("1x1", blockSize1x1Button.x + 5, blockSize1x1Button.y + 5, 15, BLACK);
-
-        DrawRectangleRec(blockSize2x2Button, LIGHTGRAY);
-
-        DrawText("2x2", blockSize2x2Button.x + 5, blockSize2x2Button.y + 5, 15, BLACK);
-
-        // Highlight the selected block size
-
-        if (blockSize == 1)
-        {
-            DrawRectangleLinesEx(blockSize1x1Button, 2, GREEN);
-        }
-        else if (blockSize == 2)
-        {
-            DrawRectangleLinesEx(blockSize2x2Button, 2, GREEN);
-        }
-
         // Draw the color palette area on the right
 
         DrawRectangle(screenWidth - paletteWidth, 0, paletteWidth, screenHeight, LIGHTGRAY);
 
+        // Draw color buttons
 
-        for (int i = 0; i < paletteSize; i++)
+        for (int i = 0; i < paletteSize; i++) 
         {
             Rectangle colorButton = { screenWidth - paletteWidth + 10, 10 + 40 * i, 30, 30 };
 
             DrawRectangleRec(colorButton, palette[i]);
 
-            if (i == selectedColor && !eraserActive)
+            if (i == selectedColor && !eraserActive) 
             {
-                DrawRectangleLinesEx(colorButton, 2, BLACK);
+                DrawRectangleLinesEx(colorButton, 2, BLACK); // Highlight selected color
             }
-
-
         }
 
-
-        if (eraserActive)
-        {
-            DrawRectangleLinesEx(eraserButton, 2, RED);  // Highlight eraser button
-        }
+        // Draw the eraser button
 
         DrawRectangleRec(eraserButton, LIGHTGRAY);
 
         DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
+
+        if (eraserActive)
+        {
+            DrawRectangleLinesEx(eraserButton, 2, BLACK); // Highlight the eraser button when active
+        }
 
 
 
