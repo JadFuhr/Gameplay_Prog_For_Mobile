@@ -1,10 +1,12 @@
+// Author: Jad Jason Fuhr 
+// Student Number: C00290965
+
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "main.h"
 #include <iostream>
 #include <fstream>
-
 
 #define MAX_RECTS 1000
 #define GRID_SIZE 10
@@ -39,6 +41,18 @@ void loadFile(Rect rectangles[MAX_RECTS], const char* filename) {
     }
 }
 
+Rectangle ToRayLibRect(const Rect& rect)
+{
+    return { rect.position.x, rect.position.y, rect.width, rect.height };
+}
+
+void AssignColor(Color& target, const Color& source) {
+    target.r = source.r;
+    target.g = source.g;
+    target.b = source.b;
+    target.a = source.a;
+}
+
 int main()
 {
     const int screenWidth = 800;
@@ -47,7 +61,7 @@ int main()
 
     const int paletteWidth = 100;
 
-    InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Drag & Drop Rectangle");
+    InitWindow(screenWidth, screenHeight, "Pixel Paint Thingy - Jad Fuhr");
 
     Rect rectangles[MAX_RECTS];
 
@@ -76,6 +90,27 @@ int main()
     while (!WindowShouldClose())
     {
         Vector2 mousePosition = GetMousePosition();
+
+        int rectIndex = -1;
+
+        if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+        {
+            for (int i = 0; i < MAX_RECTS; i++)
+            {
+                if (CheckCollisionPointRec(mousePosition, ToRayLibRect(rectangles[i])))
+                {
+                    rectIndex = i;
+                    break; // Stop checking once a collision is found
+                }
+            }
+
+            if (rectIndex >= 0)
+            {
+                AssignColor(currentColor, rectangles[rectIndex].colour);
+
+            }
+
+        }
 
         // Handle mouse input for 1x1 squares
 
@@ -281,9 +316,16 @@ int main()
             DrawRectangleLinesEx(rectToolButton, 2, GREEN);
         }
 
-        for (int i = 0; i < rectCount; i++)
+        for (int i = 0; i < rectCount; i++)     // draw grid
         {
+            
             Rectangle rect = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
+            Rectangle rect2 = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
+
+            Color cellBackground = ((i) % 2 == 0) ? Color{ 220, 220, 220, 255 } : Color{ 180, 180, 180, 255 };  // dark grey background 
+            DrawRectangleRec(rect2, cellBackground);        // draw dark grey cells
+
+
             DrawRectangleRec(rect, rectangles[i].colour);
         }
 
