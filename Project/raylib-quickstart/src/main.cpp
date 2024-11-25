@@ -2,6 +2,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "main.h"
+#include <iostream>
+#include <fstream>
+
 
 #define MAX_RECTS 1000
 #define GRID_SIZE 10
@@ -13,7 +16,28 @@ typedef struct Rect {
     Color colour;
 } Rect;
 
+void saveFile(Rect rectangles[MAX_RECTS], const char* filename) {
+    std::ofstream file(filename);
+    if (!file) return;
 
+    for (int i = 0; i < MAX_RECTS; ++i) {
+        file << rectangles[i].width << " " << rectangles[i].height << " ";
+        file << rectangles[i].colour.r << " " << rectangles[i].colour.g << " "
+            << rectangles[i].colour.b << " " << rectangles[i].colour.a << " ";
+        file << rectangles[i].position.x << " " << rectangles[i].position.y << "\n";
+    }
+}
+
+void loadFile(Rect rectangles[MAX_RECTS], const char* filename) {
+    std::ifstream file(filename);
+    if (!file) return;
+
+    for (int i = 0; i < MAX_RECTS; ++i) {
+        file >> rectangles[i].width >> rectangles[i].height;
+        file >> rectangles[i].colour.r >> rectangles[i].colour.g >> rectangles[i].colour.b >> rectangles[i].colour.a;
+        file >> rectangles[i].position.x >> rectangles[i].position.y;
+    }
+}
 
 int main()
 {
@@ -156,6 +180,10 @@ int main()
 
         Rectangle resetGridButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 2),60,30 };
 
+        Rectangle saveButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 3),60,30 };
+
+        Rectangle loadButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 4),60,30 };
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -226,6 +254,20 @@ int main()
             {
                 rectangles[i].colour = BLANK;
             }
+        }
+
+        // save button 
+
+        if (GuiButton(saveButton, "Save"))
+        {
+            saveFile(rectangles, "saveFile.txt");
+        }
+
+        // load button 
+
+        if (GuiButton(loadButton, "Load"))
+        {
+            loadFile(rectangles, "saveFile.txt");
         }
 
         if (eraserActive)       // highlight eraser tool
