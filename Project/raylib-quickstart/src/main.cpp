@@ -27,7 +27,6 @@ int main()
 
     const int paletteWidth = 100;
 
-
     InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Rectangle Mode with Eraser");
 
     // Variables
@@ -40,18 +39,29 @@ int main()
     bool eraserActive = false;  // Eraser tool toggle
 
     // Define a simple color palette
+
     Color palette[] = { BLACK, RED, GREEN, BLUE, YELLOW, ORANGE, PURPLE, MAROON };
 
     int paletteSize = sizeof(palette) / sizeof(palette[0]);
 
     int selectedColor = 0;
 
+    // Block size button positions
+
+    Rectangle blockSize1x1Button = { 0 };
+
+    Rectangle blockSize2x2Button = { 0 };
+
+    int blockSize = 1;  // Default block size
+
     SetTargetFPS(60);
 
     // Main game loop
+
     while (!WindowShouldClose())
     {
         // Update
+
         Vector2 mousePosition = GetMousePosition();
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
@@ -60,6 +70,20 @@ int main()
 
             float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;
             float snappedY = (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE;
+
+            // Block size toggle buttons
+
+            blockSize1x1Button = { screenWidth - paletteWidth + 10, screenHeight - 80, paletteWidth - 20, 30 };
+            blockSize2x2Button = { screenWidth - paletteWidth + 10, screenHeight - 40, paletteWidth - 20, 30 };
+
+            if (GuiButton(blockSize1x1Button, "1x1"))
+            {
+                blockSize = 1; // Set block size to 1x1
+            }
+            if (GuiButton(blockSize2x2Button, "2x2"))
+            {
+                blockSize = 2; // Set block size to 2x2
+            }
 
             if (mousePosition.x < screenWidth - paletteWidth)
             {
@@ -102,16 +126,17 @@ int main()
                     {
                         rectangles[rectCount].position.x = snappedX;
                         rectangles[rectCount].position.y = snappedY;
-                        rectangles[rectCount].width = GRID_SIZE;
-                        rectangles[rectCount].height = GRID_SIZE;
+                        rectangles[rectCount].width = GRID_SIZE * blockSize;
+                        rectangles[rectCount].height = GRID_SIZE * blockSize;
                         rectangles[rectCount].colour = currentColor;
                         rectCount++;
                     }
                 }
-            }   
+            }
         }
 
         // Handle palette and eraser selection
+
         for (int i = 0; i < paletteSize; i++)
         {
             // Position buttons vertically in the color palette area
@@ -161,6 +186,37 @@ int main()
             }
         }
 
+        // Draw block size toggle buttons
+
+        DrawRectangleRec(blockSize1x1Button, LIGHTGRAY);
+
+        DrawText("1x1", blockSize1x1Button.x + 5, blockSize1x1Button.y + 5, 15, BLACK);
+
+        DrawRectangleRec(blockSize2x2Button, LIGHTGRAY);
+
+        DrawText("2x2", blockSize2x2Button.x + 5, blockSize2x2Button.y + 5, 15, BLACK);
+
+        // Draw block size toggle buttons
+
+        DrawRectangleRec(blockSize1x1Button, LIGHTGRAY);
+
+        DrawText("1x1", blockSize1x1Button.x + 5, blockSize1x1Button.y + 5, 15, BLACK);
+
+        DrawRectangleRec(blockSize2x2Button, LIGHTGRAY);
+
+        DrawText("2x2", blockSize2x2Button.x + 5, blockSize2x2Button.y + 5, 15, BLACK);
+
+        // Highlight the selected block size
+
+        if (blockSize == 1)
+        {
+            DrawRectangleLinesEx(blockSize1x1Button, 2, GREEN);
+        }
+        else if (blockSize == 2)
+        {
+            DrawRectangleLinesEx(blockSize2x2Button, 2, GREEN);
+        }
+
         // Draw the color palette area on the right
 
         DrawRectangle(screenWidth - paletteWidth, 0, paletteWidth, screenHeight, LIGHTGRAY);
@@ -176,19 +232,21 @@ int main()
             {
                 DrawRectangleLinesEx(colorButton, 2, BLACK);
             }
-            
+
 
         }
 
 
         if (eraserActive)
-            {
-                DrawRectangleLinesEx(eraserButton, 2, RED);  // Highlight eraser button
-            }
+        {
+            DrawRectangleLinesEx(eraserButton, 2, RED);  // Highlight eraser button
+        }
 
         DrawRectangleRec(eraserButton, LIGHTGRAY);
 
         DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
+
+
 
         // Draw all stored rectangles
 
