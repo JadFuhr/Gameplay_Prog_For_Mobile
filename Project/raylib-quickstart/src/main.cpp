@@ -15,23 +15,33 @@ typedef struct Rect {
 int main()
 {
     const int screenWidth = 800;
+
     const int screenHeight = 600;
+
     const int paletteWidth = 100;
 
     InitWindow(screenWidth, screenHeight, "Simple Drawing Package - Drag & Drop Rectangle");
 
     Rect rectangles[MAX_RECTS];
+
     int rectCount = 0;
+
     Color currentColor = BLACK;
+
     bool eraserActive = false;
+
     bool rectToolActive = false;
 
     Color palette[] = { BLACK, RED, GREEN, BLUE, YELLOW, ORANGE, PURPLE, MAROON };
+
     int paletteSize = sizeof(palette) / sizeof(palette[0]);
+
     int selectedColor = 0;
 
     bool isDragging = false;
+
     Vector2 dragStart = { 0, 0 };
+
     Vector2 dragEnd = { 0, 0 };
 
     SetTargetFPS(60);
@@ -41,6 +51,7 @@ int main()
         Vector2 mousePosition = GetMousePosition();
 
         // Handle mouse input for 1x1 squares
+
         if (!rectToolActive && !eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
             float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;
@@ -70,7 +81,31 @@ int main()
             }
         }
 
+        // Eraser functionality
+
+        if (eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            for (int i = 0; i < rectCount; i++)
+            {
+                Rectangle rect = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
+
+                if (CheckCollisionPointRec(mousePosition, rect))
+                {
+                    // Shift all subsequent rectangles down one position in the array
+
+                    for (int j = i; j < rectCount - 1; j++)
+                    {
+                        rectangles[j] = rectangles[j + 1];
+                    }
+                    rectCount--; // Decrease the rectangle count
+
+                    i--;         // Adjust the index to account for the shift
+                }
+            }
+        }
+
         // Handle drag-and-drop rectangle creation
+
         if (rectToolActive && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             if (mousePosition.x < screenWidth - paletteWidth)
@@ -107,9 +142,40 @@ int main()
 
         // Palette and tool selection
 
+        // Highlighting buttons logic
+
+        Rectangle eraserButton = { screenWidth - paletteWidth + 10, 10 + 40 * paletteSize, 60, 30 };
+
+        Rectangle rectToolButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 1), 60, 30 };
+
+        // Handle eraser button press
+
+        if (GuiButton(eraserButton, "Eraser"))
+        {
+            eraserActive = true;
+            rectToolActive = false;
+            selectedColor = -1; // Deselect color
+        }
+
+        // Handle rectangle tool button press
+
+        if (GuiButton(rectToolButton, "Rectangle"))
+        {
+            rectToolActive = true;
+            eraserActive = false;
+            selectedColor = -1; // Deselect color
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+
+        // Drawing color palette and handling color selection
+
         for (int i = 0; i < paletteSize; i++)
         {
             Rectangle colorButton = { screenWidth - paletteWidth + 10, 10 + 40 * i, 30, 30 };
+
             if (GuiButton(colorButton, ""))
             {
                 currentColor = palette[i];
@@ -117,38 +183,12 @@ int main()
                 eraserActive = false;
                 rectToolActive = false;
             }
+
             if (i == selectedColor && !eraserActive && !rectToolActive)
             {
                 DrawRectangleLinesEx(colorButton, 2, BLACK);
             }
         }
-
-        Rectangle eraserButton = { screenWidth - paletteWidth + 10, 10 + 40 * paletteSize, 60, 30 };
-        if (GuiButton(eraserButton, "Eraser"))
-        {
-            eraserActive = true;
-            rectToolActive = false;
-            selectedColor = -1;
-        }
-        if (eraserActive)
-        {
-            DrawRectangleLinesEx(eraserButton, 2, RED);
-        }
-
-        Rectangle rectToolButton = { screenWidth - paletteWidth + 10, 10 + 40 * (paletteSize + 1), 60, 30 };
-        if (GuiButton(rectToolButton, "Rectangle"))
-        {
-            rectToolActive = true;
-            eraserActive = false;
-            selectedColor = -1;
-        }
-        if (rectToolActive)
-        {
-            DrawRectangleLinesEx(rectToolButton, 2, GREEN);
-        }
-
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
 
         for (int x = 0; x < screenWidth - paletteWidth; x += GRID_SIZE)
         {
@@ -170,11 +210,29 @@ int main()
             }
         }
 
-        DrawRectangleRec(eraserButton, LIGHTGRAY);
-        DrawText("Eraser", eraserButton.x + 5, eraserButton.y + 5, 15, BLACK);
+        if (GuiButton(eraserButton, "Eraser"))
+        {
+            eraserActive = true;
+            rectToolActive = false;
+            selectedColor = -1;
+        }
+        if (GuiButton(rectToolButton, "Rectangle"))
+        {
+            rectToolActive = true;
+            eraserActive = false;
+            selectedColor = -1;
+        }
 
-        DrawRectangleRec(rectToolButton, LIGHTGRAY);
-        DrawText("Rectangle", rectToolButton.x + 5, rectToolButton.y + 5, 15, BLACK);
+        if (eraserActive)       // highlight eraser tool
+        {
+            DrawRectangleLinesEx(eraserButton, 2, RED);
+        }
+
+
+        if (rectToolActive)     // highlight rect tool 
+        {
+            DrawRectangleLinesEx(rectToolButton, 2, GREEN);
+        }
 
         for (int i = 0; i < rectCount; i++)
         {
