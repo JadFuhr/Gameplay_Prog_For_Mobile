@@ -320,10 +320,11 @@ int main()
         {
             
             Rectangle rect = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
-            Rectangle rect2 = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
 
-            Color cellBackground = ((i) % 2 == 0) ? Color{ 220, 220, 220, 255 } : Color{ 180, 180, 180, 255 };  // dark grey background 
-            DrawRectangleRec(rect2, cellBackground);        // draw dark grey cells
+            //Rectangle rect2 = { rectangles[i].position.x, rectangles[i].position.y, rectangles[i].width, rectangles[i].height };
+
+           // Color cellBackground = ((i) % 2 == 0) ? Color{ 220, 220, 220, 255 } : Color{ 180, 180, 180, 255 };  // dark grey background 
+            //DrawRectangleRec(rect2, cellBackground);        // draw dark grey cells
 
 
             DrawRectangleRec(rect, rectangles[i].colour);
