@@ -93,11 +93,11 @@ int main()
 
         int rectIndex = -1;
 
-        if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+        if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))       // right click to access colour picker 
         {
             for (int i = 0; i < MAX_RECTS; i++)
             {
-                if (CheckCollisionPointRec(mousePosition, ToRayLibRect(rectangles[i])))
+                if (CheckCollisionPointRec(mousePosition, ToRayLibRect(rectangles[i])))     // checks collison on block at mouse pos and calls ToRayLibRect
                 {
                     rectIndex = i;
                     break; // Stop checking once a collision is found
@@ -114,15 +114,16 @@ int main()
 
         // Handle mouse input for 1x1 squares
 
-        if (!rectToolActive && !eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        if (!rectToolActive && !eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))           // if rect tool and eraser tool arent active 
         {
-            float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;
+            float snappedX = (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE;     
             float snappedY = (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE;
 
-            if (mousePosition.x < screenWidth - paletteWidth)
+            if (mousePosition.x < screenWidth - paletteWidth)       // checks if mouse pos is in the grid and not in the palette 
             {
                 bool exists = false;
-                for (int i = 0; i < rectCount; i++)
+
+                for (int i = 0; i < rectCount; i++)     
                 {
                     if (rectangles[i].position.x == snappedX && rectangles[i].position.y == snappedY)
                     {
@@ -145,7 +146,7 @@ int main()
 
         // Eraser functionality
 
-        if (eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        if (eraserActive && IsMouseButtonDown(MOUSE_LEFT_BUTTON))       // eraser is active and left click pressed 
         {
             for (int i = 0; i < rectCount; i++)
             {
@@ -184,12 +185,12 @@ int main()
         {
             dragEnd = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };
 
-            float rectWidth = fabsf(dragEnd.x - dragStart.x);
-            float rectHeight = fabsf(dragEnd.y - dragStart.y);
+            float rectWidth = fabsf(dragEnd.x - dragStart.x);       // calculates absolut value for the width while dragging 
+            float rectHeight = fabsf(dragEnd.y - dragStart.y);      // calculates absolute value for height while dragging 
 
             if (rectCount < MAX_RECTS)
             {
-                rectangles[rectCount].position.x = fminf(dragStart.x, dragEnd.x);
+                rectangles[rectCount].position.x = fminf(dragStart.x, dragEnd.x);       // fminf returns the smaller value of two float values 
                 rectangles[rectCount].position.y = fminf(dragStart.y, dragEnd.y);
                 rectangles[rectCount].width = rectWidth;
                 rectangles[rectCount].height = rectHeight;
@@ -202,7 +203,7 @@ int main()
 
         if (isDragging)
         {
-            dragEnd = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };
+            dragEnd = Vector2{ (float)((int)mousePosition.x / GRID_SIZE) * GRID_SIZE, (float)((int)mousePosition.y / GRID_SIZE) * GRID_SIZE };  // updating the end position (dragEnd) of the drag based on the current mouse position
         }
 
         // Palette and tool selection
@@ -237,7 +238,7 @@ int main()
                 rectToolActive = false;
             }
 
-            if (i == selectedColor && !eraserActive && !rectToolActive)
+            if (i == selectedColor && !eraserActive && !rectToolActive)     // defaults starting colour to black 
             {
                 DrawRectangleLinesEx(colorButton, 2, BLACK);
             }
@@ -285,7 +286,7 @@ int main()
 
         if (GuiButton(resetGridButton, "Reset"))
         {
-            for (int i = 0; i < MAX_RECTS; i++)
+            for (int i = 0; i < MAX_RECTS; i++)     // for loop to go throught the rects and reset them all to blank colour if reset is pressed 
             {
                 rectangles[i].colour = BLANK;
             }
@@ -295,14 +296,14 @@ int main()
 
         if (GuiButton(saveButton, "Save"))
         {
-            saveFile(rectangles, "saveFile.txt");
+            saveFile(rectangles, "saveFile.txt");       // calls save file function when save button is pressed 
         }
 
         // load button 
 
         if (GuiButton(loadButton, "Load"))
         {
-            loadFile(rectangles, "saveFile.txt");
+            loadFile(rectangles, "saveFile.txt");       // calls load file function when load button is pressed 
         }
 
         if (eraserActive)       // highlight eraser tool
@@ -313,7 +314,7 @@ int main()
 
         if (rectToolActive)     // highlight rect tool 
         {
-            DrawRectangleLinesEx(rectToolButton, 2, GREEN);
+            DrawRectangleLinesEx(rectToolButton, 2, RED);
         }
 
         for (int i = 0; i < rectCount; i++)     // draw grid
@@ -334,6 +335,7 @@ int main()
         {
             float previewWidth = fabsf(dragEnd.x - dragStart.x);
             float previewHeight = fabsf(dragEnd.y - dragStart.y);
+
             DrawRectangleLines(fminf(dragStart.x, dragEnd.x), fminf(dragStart.y, dragEnd.y), previewWidth, previewHeight, currentColor);
         }
 
